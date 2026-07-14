@@ -7,7 +7,9 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: #1e1e2f;
+            background: linear-gradient(rgba(15, 15, 26, 0.75), rgba(15, 15, 26, 0.75)), 
+                        url('https://i.postimg.cc/Pfc4XsmY/AGUILA1-KAVOX.png') no-repeat center center fixed;
+            background-size: cover;
             color: #fff;
             display: flex;
             flex-direction: column;
@@ -16,6 +18,7 @@
             min-height: 100vh;
             margin: 0;
             overflow: hidden;
+            text-transform: uppercase;
         }
 
         /* Pantalla de bloqueo total (Simulación de cierre) */
@@ -35,27 +38,100 @@
         }
 
         #pantalla-cierre h2 {
-            color: #ff007f;
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+            color: #ECC000;
+            font-size: 3rem;
+            margin-bottom: 15px;
+            text-shadow: 0 0 15px rgba(236, 192, 0, 0.4);
         }
 
         .subtexto-cierre {
-            font-size: 1.2rem;
+            font-size: 1.5rem;
             color: #b0bec5;
+            padding: 0 20px;
+        }
+
+        /* VENTANA EMERGENTE DE PREMIO (POPUP) */
+        #anuncio-premio {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(10, 10, 15, 0.95);
+            z-index: 90;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        .caja-premio {
+            background: #1e1e2f;
+            border: 3px solid #ECC000;
+            padding: 40px 30px;
+            border-radius: 25px;
+            box-shadow: 0 0 30px rgba(236, 192, 0, 0.4);
+            max-width: 90%;
+            width: 450px;
+            transform: scale(0.7);
+            animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+        }
+
+        .caja-premio h2 {
+            color: #ECC000;
+            font-size: 2.5rem;
+            margin: 0 0 10px 0;
+            text-shadow: 0 0 10px rgba(236, 192, 0, 0.5);
+        }
+
+        .caja-premio .emoji-animado {
+            font-size: 4.5rem;
+            margin: 15px 0;
+            animation: rebote 1s infinite alternate;
+        }
+
+        .caja-premio .texto-ganado {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: #fff;
+            margin: 15px 0;
+            text-shadow: 0 0 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .caja-premio .boton-cerrar-premio {
+            margin-top: 20px;
+            padding: 10px 30px;
+            background: #ECC000;
+            color: #000;
+            font-weight: bold;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            text-transform: uppercase;
+            font-size: 1rem;
+            transition: transform 0.2s;
+        }
+
+        .caja-premio .boton-cerrar-premio:hover {
+            transform: scale(1.05);
         }
 
         h1 {
             margin-bottom: 20px;
-            color: #00f2fe;
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+            color: #ECC000;
+            text-shadow: 0 0 15px rgba(236, 192, 0, 0.6);
+            font-size: 2.2rem;
+            text-align: center;
+            padding: 0 15px;
+            font-weight: 800;
         }
 
         .contenedor-ruleta {
             position: relative;
-            width: 350px;
-            height: 350px;
+            width: 360px;
+            height: 360px;
             margin-bottom: 30px;
         }
 
@@ -68,97 +144,126 @@
             height: 0;
             border-left: 15px solid transparent;
             border-right: 15px solid transparent;
-            border-top: 30px solid #ff007f;
+            border-top: 30px solid #ECC000;
             z-index: 10;
-            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.5));
         }
 
         canvas {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 242, 254, 0.2);
-            transition: transform 4s cubic-bezier(0.1, 0.8, 0.25, 1);
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.8), 0 0 45px rgba(236, 192, 0, 0.25);
+            transition: transform 7s cubic-bezier(0.1, 0.8, 0.25, 1);
         }
 
         .boton-girar {
-            padding: 12px 45px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: #fff;
-            background: linear-gradient(45deg, #00f2fe, #4facfe);
-            border: none;
-            border-radius: 25px;
+            padding: 16px 60px;
+            font-size: 1.7rem;
+            font-weight: 900;
+            color: #000000;
+            background: #ECC000;
+            border: 2px solid #ECC000;
+            border-radius: 35px;
             cursor: pointer;
-            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
-            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 0 20px rgba(236, 192, 0, 0.4), inset 0 0 10px rgba(255, 255, 255, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s, background-color 0.2s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
         .boton-girar:hover:not(:disabled) {
-            transform: scale(1.05);
-            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+            transform: scale(1.06);
+            box-shadow: 0 0 30px rgba(236, 192, 0, 0.7), inset 0 0 15px rgba(255, 255, 255, 0.5);
+            background: #ffd32a;
         }
 
         .boton-girar:disabled {
-            background: #555 !important;
+            background: #444 !important;
+            border-color: #444 !important;
+            color: #888 !important;
             cursor: not-allowed;
             box-shadow: none !important;
             transform: none !important;
         }
 
         .resultado {
-            margin-top: 20px;
-            font-size: 1.5rem;
+            margin-top: 25px;
+            font-size: 1.8rem;
             font-weight: bold;
-            min-height: 36px;
-            color: #ff007f;
-            text-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+            min-height: 42px;
+            color: #ECC000;
+            text-shadow: 0 0 12px rgba(236, 192, 0, 0.4);
             text-align: center;
             padding: 0 20px;
         }
 
         .contador {
-            font-size: 1rem;
+            font-size: 1.2rem;
             color: #b0bec5;
-            margin-top: 10px;
+            margin-top: 12px;
             font-style: italic;
-            min-height: 20px;
+            min-height: 24px;
         }
 
-        /* BOTÓN COMPLETAMENTE INVISIBLE EN EL COSTADO INFERIOR DERECHO */
         .btn-reset-oculto {
             position: fixed;
             bottom: 0;
             right: 0;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             background: transparent;
             border: none;
             outline: none;
-            cursor: default; /* Mantiene la flecha normal del mouse para no levantar sospechas */
-            z-index: 110; /* Queda por encima de la pantalla negra */
+            cursor: default;
+            z-index: 110;
+        }
+
+        /* ANIMACIONES CSS */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes popUp {
+            to { transform: scale(1); }
+        }
+
+        @keyframes rebote {
+            from { transform: translateY(0); }
+            to { transform: translateY(-10px); }
         }
     </style>
 </head>
 <body>
 
+    <!-- PANTALLA BLOQUEO FINAL -->
     <div id="pantalla-cierre">
-        <h2>🔒 Oportunidad Finalizada</h2>
-        <div class="subtexto-cierre">Ya has participado en la ruleta del parche. ¡Gracias por jugar!</div>
+        <h2>🔒 OPORTUNIDAD FINALIZADA</h2>
+        <div class="subtexto-cierre">YA HAS PARTICIPADO EN LA RULETA DEL PARCHE. ¡GRACIAS POR JUGAR!</div>
     </div>
 
-    <h1>🏆 ¡Tu Única Oportunidad! 🏆</h1>
+    <!-- POPUP DE ANUNCIO DE PREMIO -->
+    <div id="anuncio-premio">
+        <div class="caja-premio">
+            <h2 id="titulo-anuncio">🎉 ¡FELICIDADES! 🎉</h2>
+            <div class="emoji-animado" id="emoji-anuncio">🏆</div>
+            <div class="texto-ganado" id="texto-premio-anuncio">FLETE GRATIS</div>
+            <button class="boton-cerrar-premio" onclick="cerrarAnuncio()">Entendido</button>
+        </div>
+    </div>
+
+    <h1>🏆 RULETA GANADORA KAVOX 🏆</h1>
 
     <div class="contenedor-ruleta">
         <div class="marcador"></div>
-        <canvas id="ruleta" width="400" height="400"></canvas>
+        <canvas id="ruleta" width="450" height="450"></canvas>
     </div>
 
     <button class="boton-girar" id="btnGirar">¡GIRAR!</button>
     <div class="resultado" id="resultado"></div>
     <div class="contador" id="contador"></div>
 
-    <!-- BOTÓN INVISIBLE PARA TI -->
     <button class="btn-reset-oculto" onclick="reiniciarMemoria()"></button>
 
     <script>
@@ -168,17 +273,30 @@
         const resultadoTxt = document.getElementById('resultado');
         const contadorTxt = document.getElementById('contador');
         const pantallaCierre = document.getElementById('pantalla-cierre');
+        
+        // Elementos del nuevo anuncio emergente
+        const anuncioPremio = document.getElementById('anuncio-premio');
+        const tituloAnuncio = document.getElementById('titulo-anuncio');
+        const emojiAnuncio = document.getElementById('emoji-anuncio');
+        const textoPremioAnuncio = document.getElementById('texto-premio-anuncio');
 
-        const premios = ["5%", "10%", "Flete gratis", "No ganaste", "Gira de nuevo"];
+        const premios = [
+            "5% DE DESCUENTO", 
+            "10% DE DESCUENTO", 
+            "FLETE GRATIS", 
+            "GIRA DE NUEVO", 
+            "NO GANASTE"
+        ];
         const numSectores = premios.length;
         const anguloSector = (2 * Math.PI) / numSectores;
-        const colores = ["#11998e", "#38ef7d", "#ff9900", "#b0bec5", "#ea2027"];
+        
+        const coloresSectores = ["#11998e", "#38ef7d", "#ff9900", "#ea2027", "#b0bec5"];
 
         let anguloActual = 0;
 
         function dibujarRuleta() {
             const centro = canvas.width / 2;
-            const radio = centro - 10;
+            const radio = centro - 15;
 
             for (let i = 0; i < numSectores; i++) {
                 const anguloInicio = i * anguloSector;
@@ -187,28 +305,37 @@
                 ctx.beginPath();
                 ctx.moveTo(centro, centro);
                 ctx.arc(centro, centro, radio, anguloInicio, anguloFin);
-                ctx.fillStyle = colores[i % colores.length];
+                ctx.fillStyle = coloresSectores[i % coloresSectores.length];
                 ctx.fill();
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 4;
                 ctx.strokeStyle = '#1e1e2f';
                 ctx.stroke();
 
                 ctx.save();
                 ctx.translate(centro, centro);
+                
                 ctx.rotate(anguloInicio + anguloSector / 2);
-                ctx.textAlign = "right";
-                ctx.fillStyle = "#fff";
-                ctx.font = "bold 16px sans-serif";
-                ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
-                ctx.shadowBlur = 4;
-                ctx.fillText(premios[i], radio - 20, 6);
+                ctx.translate(radio - 100, 0);
+                ctx.rotate(Math.PI);
+                
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "#ffffff";
+                
+                ctx.font = "bold 20px 'Segoe UI', sans-serif";
+                ctx.shadowColor = "rgba(0, 0, 0, 0.85)";
+                ctx.shadowBlur = 6;
+                
+                ctx.fillText(premios[i], 0, 0);
                 ctx.restore();
             }
 
             ctx.beginPath();
-            ctx.arc(centro, centro, 20, 0, 2 * Math.PI);
+            ctx.arc(centro, centro, 25, 0, 2 * Math.PI);
             ctx.fillStyle = '#ffffff';
             ctx.fill();
+            ctx.lineWidth = 4;
+            ctx.strokeStyle = '#000000';
             ctx.stroke();
         }
 
@@ -218,6 +345,7 @@
                 btnGirar.disabled = true;
             } else {
                 pantallaCierre.style.display = 'none';
+                anuncioPremio.style.display = 'none';
                 btnGirar.disabled = false;
                 resultadoTxt.innerText = "";
                 contadorTxt.innerText = "";
@@ -233,24 +361,42 @@
             const intervalo = setInterval(() => {
                 segundosRestantes--;
                 if (segundosRestantes > 0) {
-                    contadorTxt.innerText = `La aplicación se cerrará en ${segundosRestantes} segundos...`;
+                    contadorTxt.innerText = `LA APLICACIÓN SE CERRARÁ EN ${segundosRestantes} SEGUNDOS...`;
                 } else {
                     clearInterval(intervalo);
+                    anuncioPremio.style.display = 'none'; // Cerramos anuncio si sigue abierto antes del bloqueo total
                     pantallaCierre.style.display = 'flex';
                 }
             }, 1000);
         }
 
+        function mostrarAnuncioPremio(premio) {
+            if (premio === "NO GANASTE") {
+                tituloAnuncio.innerText = "¡GRACIAS POR JUGAR!";
+                emojiAnuncio.innerText = "👍";
+                textoPremioAnuncio.innerText = "No hubo suerte esta vez. ¡Sigue conectado con KAVOX!";
+            } else {
+                tituloAnuncio.innerText = "🎉 ¡FELICIDADES! 🎉";
+                emojiAnuncio.innerText = premio === "FLETE GRATIS" ? "🚚" : "🎁";
+                textoPremioAnuncio.innerText = `HAS GANADO:\n${premio}`;
+            }
+            anuncioPremio.style.display = 'flex';
+        }
+
+        function cerrarAnuncio() {
+            anuncioPremio.style.display = 'none';
+        }
+
         function girar() {
             btnGirar.disabled = true;
-            resultadoTxt.innerText = "¡Mucha suerte...!";
+            resultadoTxt.innerText = "¡MUCHA SUERTE...!";
 
-            const vueltas = 6 + Math.floor(Math.random() * 4);
+            const vueltas = 8 + Math.floor(Math.random() * 5);
             const gradosAleatorios = Math.random() * 360;
             const gradosTotales = (vueltas * 360) + gradosAleatorios;
             
             anguloActual += (gradosTotales * Math.PI) / 180;
-            canvas.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.25, 1)";
+            canvas.style.transition = "transform 7s cubic-bezier(0.1, 0.8, 0.25, 1)";
             canvas.style.transform = `rotate(${anguloActual}rad)`;
 
             setTimeout(() => {
@@ -261,24 +407,28 @@
                 const indiceGanador = Math.floor(anguloMarcador / anguloSector) % numSectores;
                 const premioGanado = premios[indiceGanador];
 
-                if (premioGanado === "Gira de nuevo") {
-                    resultadoTxt.innerHTML = "🔄 ¡Gira de nuevo! Tienes un intento extra.";
+                if (premioGanado === "GIRA DE NUEVO") {
+                    resultadoTxt.innerHTML = "🔄 ¡GIRA DE NUEVO! TIENES UN INTENTO EXTRA.";
                     btnGirar.disabled = false;
                     return; 
                 }
 
                 localStorage.setItem('ruletaJugada', 'true');
 
-                if (premioGanado === "No ganaste") {
-                    resultadoTxt.innerHTML = "❌ No hubo suerte esta vez. ¡Gracias por participar!";
+                // Mostrar el texto tradicional abajo
+                if (premioGanado === "NO GANASTE") {
+                    resultadoTxt.innerHTML = "❌ NO HUBO SUERTE ESTA VEZ. ¡GRACIAS POR PARTICIPAR!";
                 } else {
-                    resultadoTxt.innerHTML = `🎉 ¡Ganaste: <strong>${premioGanado}</strong>! 🎉`;
+                    resultadoTxt.innerHTML = `🎉 ¡GANASTE: <strong>${premioGanado}</strong>! 🎉`;
                 }
 
-                contadorTxt.innerText = "La aplicación se cerrará en 10 segundos...";
+                // MOSTRAR ANUNCIO GIGANTE EN PANTALLA
+                mostrarAnuncioPremio(premioGanado);
+
+                contadorTxt.innerText = "LA APLICACIÓN SE CERRARÁ EN 10 SEGUNDOS...";
                 iniciarCuentaRegresiva();
 
-            }, 4000);
+            }, 7000);
         }
 
         function reiniciarMemoria() {
