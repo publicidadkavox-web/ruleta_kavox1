@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ruleta de Premios - Parche Mundialista</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1e1e2f;
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        /* Pantalla de bloqueo total (Simulación de cierre) */
+        #pantalla-cierre {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: #0f0f16;
+            z-index: 100;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        #pantalla-cierre h2 {
+            color: #ff007f;
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px rgba(255, 0, 127, 0.4);
+        }
+
+        .subtexto-cierre {
+            font-size: 1.2rem;
+            color: #b0bec5;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+            color: #00f2fe;
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.5);
+        }
+
+        .contenedor-ruleta {
+            position: relative;
+            width: 350px;
+            height: 350px;
+            margin-bottom: 30px;
+        }
+
+        .marcador {
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #ff007f;
+            z-index: 10;
+            filter: drop-shadow(0px 4px 6px rgba(0,0,0,0.3));
+        }
+
+        canvas {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.6), 0 0 40px rgba(0, 242, 254, 0.2);
+            transition: transform 4s cubic-bezier(0.1, 0.8, 0.25, 1);
+        }
+
+        .boton-girar {
+            padding: 12px 45px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(45deg, #00f2fe, #4facfe);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(79, 172, 254, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .boton-girar:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(79, 172, 254, 0.6);
+        }
+
+        .boton-girar:disabled {
+            background: #555 !important;
+            cursor: not-allowed;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .resultado {
+            margin-top: 20px;
+            font-size: 1.5rem;
+            font-weight: bold;
+            min-height: 36px;
+            color: #ff007f;
+            text-shadow: 0 0 10px rgba(255, 0, 127, 0.3);
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .contador {
+            font-size: 1rem;
+            color: #b0bec5;
+            margin-top: 10px;
+            font-style: italic;
+            min-height: 20px;
+        }
+
+        /* BOTÓN COMPLETAMENTE INVISIBLE EN EL COSTADO INFERIOR DERECHO */
+        .btn-reset-oculto {
+            position: fixed;
+            bottom: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: transparent;
+            border: none;
+            outline: none;
+            cursor: default; /* Mantiene la flecha normal del mouse para no levantar sospechas */
+            z-index: 110; /* Queda por encima de la pantalla negra */
+        }
+    </style>
+</head>
+<body>
+
+    <div id="pantalla-cierre">
+        <h2>🔒 Oportunidad Finalizada</h2>
+        <div class="subtexto-cierre">Ya has participado en la ruleta del parche. ¡Gracias por jugar!</div>
+    </div>
+
+    <h1>🏆 ¡Tu Única Oportunidad! 🏆</h1>
+
+    <div class="contenedor-ruleta">
+        <div class="marcador"></div>
+        <canvas id="ruleta" width="400" height="400"></canvas>
+    </div>
+
+    <button class="boton-girar" id="btnGirar">¡GIRAR!</button>
+    <div class="resultado" id="resultado"></div>
+    <div class="contador" id="contador"></div>
+
+    <!-- BOTÓN INVISIBLE PARA TI -->
+    <button class="btn-reset-oculto" onclick="reiniciarMemoria()"></button>
+
+    <script>
+        const canvas = document.getElementById('ruleta');
+        const ctx = canvas.getContext('2d');
+        const btnGirar = document.getElementById('btnGirar');
+        const resultadoTxt = document.getElementById('resultado');
+        const contadorTxt = document.getElementById('contador');
+        const pantallaCierre = document.getElementById('pantalla-cierre');
+
+        const premios = ["5%", "10%", "Flete gratis", "No ganaste", "Gira de nuevo"];
+        const numSectores = premios.length;
+        const anguloSector = (2 * Math.PI) / numSectores;
+        const colores = ["#11998e", "#38ef7d", "#ff9900", "#b0bec5", "#ea2027"];
+
+        let anguloActual = 0;
+
+        function dibujarRuleta() {
+            const centro = canvas.width / 2;
+            const radio = centro - 10;
+
+            for (let i = 0; i < numSectores; i++) {
+                const anguloInicio = i * anguloSector;
+                const anguloFin = anguloInicio + anguloSector;
+
+                ctx.beginPath();
+                ctx.moveTo(centro, centro);
+                ctx.arc(centro, centro, radio, anguloInicio, anguloFin);
+                ctx.fillStyle = colores[i % colores.length];
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#1e1e2f';
+                ctx.stroke();
+
+                ctx.save();
+                ctx.translate(centro, centro);
+                ctx.rotate(anguloInicio + anguloSector / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 16px sans-serif";
+                ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+                ctx.shadowBlur = 4;
+                ctx.fillText(premios[i], radio - 20, 6);
+                ctx.restore();
+            }
+
+            ctx.beginPath();
+            ctx.arc(centro, centro, 20, 0, 2 * Math.PI);
+            ctx.fillStyle = '#ffffff';
+            ctx.fill();
+            ctx.stroke();
+        }
+
+        function verificarEstado() {
+            if (localStorage.getItem('ruletaJugada') === 'true') {
+                pantallaCierre.style.display = 'flex';
+                btnGirar.disabled = true;
+            } else {
+                pantallaCierre.style.display = 'none';
+                btnGirar.disabled = false;
+                resultadoTxt.innerText = "";
+                contadorTxt.innerText = "";
+                canvas.style.transition = "none";
+                anguloActual = 0;
+                canvas.style.transform = `rotate(0rad)`;
+            }
+        }
+
+        function iniciarCuentaRegresiva() {
+            let segundosRestantes = 10;
+            
+            const intervalo = setInterval(() => {
+                segundosRestantes--;
+                if (segundosRestantes > 0) {
+                    contadorTxt.innerText = `La aplicación se cerrará en ${segundosRestantes} segundos...`;
+                } else {
+                    clearInterval(intervalo);
+                    pantallaCierre.style.display = 'flex';
+                }
+            }, 1000);
+        }
+
+        function girar() {
+            btnGirar.disabled = true;
+            resultadoTxt.innerText = "¡Mucha suerte...!";
+
+            const vueltas = 6 + Math.floor(Math.random() * 4);
+            const gradosAleatorios = Math.random() * 360;
+            const gradosTotales = (vueltas * 360) + gradosAleatorios;
+            
+            anguloActual += (gradosTotales * Math.PI) / 180;
+            canvas.style.transition = "transform 4s cubic-bezier(0.1, 0.8, 0.25, 1)";
+            canvas.style.transform = `rotate(${anguloActual}rad)`;
+
+            setTimeout(() => {
+                const anguloNeto = anguloActual % (2 * Math.PI);
+                let anguloMarcador = (3 * Math.PI / 2) - anguloNeto;
+                if (anguloMarcador < 0) anguloMarcador += 2 * Math.PI;
+
+                const indiceGanador = Math.floor(anguloMarcador / anguloSector) % numSectores;
+                const premioGanado = premios[indiceGanador];
+
+                if (premioGanado === "Gira de nuevo") {
+                    resultadoTxt.innerHTML = "🔄 ¡Gira de nuevo! Tienes un intento extra.";
+                    btnGirar.disabled = false;
+                    return; 
+                }
+
+                localStorage.setItem('ruletaJugada', 'true');
+
+                if (premioGanado === "No ganaste") {
+                    resultadoTxt.innerHTML = "❌ No hubo suerte esta vez. ¡Gracias por participar!";
+                } else {
+                    resultadoTxt.innerHTML = `🎉 ¡Ganaste: <strong>${premioGanado}</strong>! 🎉`;
+                }
+
+                contadorTxt.innerText = "La aplicación se cerrará en 10 segundos...";
+                iniciarCuentaRegresiva();
+
+            }, 4000);
+        }
+
+        function reiniciarMemoria() {
+            localStorage.removeItem('ruletaJugada');
+            verificarEstado();
+        }
+
+        // Inicializar
+        dibujarRuleta();
+        verificarEstado();
+        btnGirar.addEventListener('click', girar);
+    </script>
+</body>
+</html>
